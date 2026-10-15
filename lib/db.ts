@@ -1,10 +1,11 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import type { Comment, Post, Profile, ProfilePatch, Reaction, ReactionKey } from './types';
 import { DEMO_PROFILE, SEED_COMMENTS, SEED_POSTS, SEED_REACTIONS, nextId, profiles } from './seed';
 
 // ---------------------------------------------------------------------------
-// The whole store, on disk. This is the one place that talks to data/db.json,
+// The whole store, on disk. This is the one place that talks to the JSON store,
 // and it is server-only — never import it from a client component. Client code
 // goes through the server actions in lib/actions.ts instead.
 //
@@ -13,11 +14,16 @@ import { DEMO_PROFILE, SEED_COMMENTS, SEED_POSTS, SEED_REACTIONS, nextId, profil
 // of the module, so a reaction fired in the browser never reached the server
 // and vanished on refresh. Everything mutable now lives behind one write().
 //
+// The store lives in os.tmpdir() because Vercel's lambda filesystem is
+// read-only apart from /tmp — writing under process.cwd() throws ENOENT at
+// mkdir. data/db.json is only read, as the seed for the first boot.
+//
 // Replacing this with a real database means reimplementing these exports;
 // every call site already talks to them by name.
 // ---------------------------------------------------------------------------
 
-const DB_PATH = path.join(process.cwd(), 'data', 'db.json');
+const SEED_PATH = path.join(process.cwd(), 'data', 'db.json');
+const DB_PATH = path.join(os.tmpdir(), 'glitched-db.json');
 
 let seq = 0;
 const newId = () => `post-${Date.now().toString(36)}-${++seq}`;
@@ -40,13 +46,33 @@ function write(store: Store) {
 // missing rather than making everyone delete the file to get them back. The
 // fallbacks are cloned — returning seed.ts's own arrays would let a mutation
 // dirty that module in memory even if the write below then failed.
+//
+// The first boot copies data/db.json (read-only in deployment) into the
+// writable store in /tmp; if that file is absent or unreadable we fall back
+// to the in-code seed.
 function read(): Store {
   if (!fs.existsSync(DB_PATH)) {
+    let parsed: Partial<Store> = {};
+    try {
+      if (fs.existsSync(SEED_PATH)) {
+        parsed = JSON.parse(fs.readFileSync(SEED_PATH, 'utf8')) as Partial<Store>;
+      }
+    } catch {
+      parsed = {};
+    }
     const seeded: Store = {
-      posts: SEED_POSTS.map((p) => ({ ...p })),
-      profiles: profiles.map((p) => ({ ...p })),
-      comments: SEED_COMMENTS.map((c) => ({ ...c })),
-      reactions: SEED_REACTIONS.map((r) => ({ ...r })),
+      posts: Array.isArray(parsed.posts)
+        ? parsed.posts
+        : SEED_POSTS.map((p) => ({ ...p })),
+      profiles: Array.isArray(parsed.profiles)
+        ? parsed.profiles
+        : profiles.map((p) => ({ ...p })),
+      comments: Array.isArray(parsed.comments)
+        ? parsed.comments
+        : SEED_COMMENTS.map((c) => ({ ...c })),
+      reactions: Array.isArray(parsed.reactions)
+        ? parsed.reactions
+        : SEED_REACTIONS.map((r) => ({ ...r })),
     };
     write(seeded);
     return seeded;
