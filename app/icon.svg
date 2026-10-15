@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
+  <defs>
+    <g id="g">
+      <rect x="4" y="0" width="24" height="4"/>
+      <rect x="0" y="4" width="8" height="4"/>
+      <rect x="24" y="4" width="8" height="4"/>
+      <rect x="0" y="8" width="8" height="4"/>
+      <rect x="0" y="12" width="8" height="4"/>
+      <rect x="0" y="16" width="8" height="4"/>
+      <rect x="16" y="16" width="16" height="4"/>
+      <rect x="0" y="20" width="8" height="4"/>
+      <rect x="24" y="20" width="8" height="4"/>
+      <rect x="0" y="24" width="8" height="4"/>
+      <rect x="24" y="24" width="8" height="4"/>
+      <rect x="4" y="28" width="24" height="4"/>
+    </g>
+    <clipPath id="a"><rect x="0" y="4" width="32" height="13"/></clipPath>
+    <clipPath id="b"><rect x="0" y="16" width="32" height="12"/></clipPath>
+  </defs>
+
+  <rect width="32" height="32" fill="#000000"/>
+
+  <!-- crimson channel: upper slice slipped left -->
+  <g clip-path="url(#a)">
+    <g transform="translate(-2 0)">
+      <use href="#g" fill="#C9302C"/>
+    </g>
+  </g>
+  <!-- gold channel: lower slice slipped right -->
+  <g clip-path="url(#b)">
+    <g transform="translate(2 0)">
+      <use href="#g" fill="#B98A2E"/>
+    </g>
+  </g>
+
+  <!-- base paper G -->
+  <use href="#g" fill="#F5F3EE"/>
+
+  <!-- stray corrupted bits -->
+  <rect x="0" y="0" width="4" height="4" fill="#C9302C"/>
+  <rect x="28" y="8" width="4" height="4" fill="#B98A2E"/>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" role="img" aria-label="Corridor mural">
+  <defs>
+    <linearGradient id="g" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#1A1408"/>
+      <stop offset="0.5" stop-color="#5A3F12"/>
+      <stop offset="1" stop-color="#B98A2E"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#g)"/>
+  <path d="M-60 820 C 260 560, 470 900, 760 640 C 1010 415, 1240 700, 1680 420" fill="none" stroke="#C9302C" stroke-width="120" stroke-opacity="0.75" stroke-linecap="round"/>
+  <path d="M-60 640 C 300 420, 560 720, 880 470 C 1140 270, 1330 520, 1680 250" fill="none" stroke="#3E5C3A" stroke-width="86" stroke-opacity="0.7" stroke-linecap="round"/>
+  <path d="M-60 430 C 240 260, 620 500, 940 300 C 1200 140, 1400 330, 1680 120" fill="none" stroke="#F5F3EE" stroke-width="34" stroke-opacity="0.5" stroke-linecap="round"/>
+  <g fill="#F5F3EE" fill-opacity="0.16">
+    <circle cx="270" cy="250" r="70"/>
+    <circle cx="1330" cy="760" r="110"/>
+  </g>
+</svg>

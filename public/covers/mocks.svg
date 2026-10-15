@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" role="img" aria-label="Exam corridor">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B0F14"/>
+      <stop offset="0.6" stop-color="#202A33"/>
+      <stop offset="1" stop-color="#3C4A57"/>
+    </linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F5F3EE" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#F5F3EE" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#g)"/>
+  <g stroke="#F5F3EE" stroke-opacity="0.14" stroke-width="2">
+    <path d="M120 0 V1000"/><path d="M360 0 V1000"/><path d="M600 0 V1000"/>
+    <path d="M840 0 V1000"/><path d="M1080 0 V1000"/><path d="M1320 0 V1000"/>
+  </g>
+  <path d="M1000 0 L1600 0 L1600 520 Z" fill="url(#beam)"/>
+  <g fill="#F5F3EE" fill-opacity="0.1">
+    <rect x="180" y="240" width="360" height="470" rx="6"/>
+    <rect x="640" y="330" width="360" height="470" rx="6"/>
+    <rect x="1100" y="180" width="360" height="470" rx="6"/>
+  </g>
+  <g fill="#B98A2E" fill-opacity="0.65">
+    <rect x="180" y="240" width="360" height="14" rx="7"/>
+    <rect x="640" y="330" width="360" height="14" rx="7"/>
+    <rect x="1100" y="180" width="360" height="14" rx="7"/>
+  </g>
+</svg>

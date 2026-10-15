@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" role="img" aria-label="Society fair">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#160F22"/>
+      <stop offset="0.55" stop-color="#3A2450"/>
+      <stop offset="1" stop-color="#6B4A7A"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.35" r="0.6">
+      <stop offset="0" stop-color="#B98A2E" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#B98A2E" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#g)"/>
+  <rect width="1600" height="1000" fill="url(#glow)"/>
+  <g fill="#F5F3EE" fill-opacity="0.75">
+    <circle cx="230" cy="200" r="12"/><circle cx="470" cy="120" r="8"/>
+    <circle cx="700" cy="250" r="14"/><circle cx="960" cy="150" r="9"/>
+    <circle cx="1220" cy="270" r="12"/><circle cx="1450" cy="140" r="10"/>
+    <circle cx="330" cy="430" r="9"/><circle cx="620" cy="500" r="13"/>
+    <circle cx="880" cy="420" r="8"/><circle cx="1150" cy="530" r="11"/>
+    <circle cx="1400" cy="440" r="9"/>
+  </g>
+  <g fill="#B98A2E" fill-opacity="0.9">
+    <circle cx="380" cy="320" r="16"/><circle cx="820" cy="330" r="18"/>
+    <circle cx="1300" cy="360" r="15"/><circle cx="1060" cy="640" r="17"/>
+    <circle cx="520" cy="680" r="14"/>
+  </g>
+  <g stroke="#F5F3EE" stroke-opacity="0.35" stroke-width="3" fill="none">
+    <path d="M0 780 C 400 700, 700 860, 1100 760 C 1350 700, 1480 790, 1600 750"/>
+    <path d="M0 860 C 420 790, 720 930, 1120 840 C 1360 790, 1470 870, 1600 830"/>
+  </g>
+</svg>

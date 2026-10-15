@@ -1,0 +1,660 @@
+@import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Pacifico&family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  background-color: #000000;
+  color: #F5F3EE;
+}
+
+::selection {
+  background: #B98A2E;
+  color: #000000;
+}
+
+/* ── the arcade monitor ──────────────────────────────────────────
+   A fixed CRT scanline sheet over everything: 1px dark lines every
+   3px at low alpha. Invisible on the black canvas; stripes the
+   glowing paper / gold / crimson so text reads like it's behind
+   cabinet glass. Static (no flicker), pointer-events none. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.13) 2px,
+    rgba(0, 0, 0, 0.13) 3px
+  );
+}
+
+/* ── the glitched wordmark ───────────────────────────────────────
+   The mark carries the capital G, the type carries the rest. Paper
+   on pitch black — the same ink as the mark — so the two read as one
+   wordmark, with a hard crimson print-offset under the type and a
+   deeper near-black step under that. All the colour in the lockup
+   belongs to the glitch; the letterforms stay ink. Hover cracks the
+   offset open a touch and lets gold bleed out the far side. */
+.wordmark {
+  display: inline-block;
+  color: #F5F3EE;
+  font-weight: 400;
+  text-shadow:
+    0.09em 0.09em 0 #C9302C,
+    0.18em 0.18em 0 rgba(0, 0, 0, 0.6),
+    0.01em 0 0 rgba(185, 138, 46, 0);
+  transition: text-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.group:hover .wordmark,
+.group:focus-visible .wordmark {
+  text-shadow:
+    0.14em 0.14em 0 #C9302C,
+    0.22em 0.22em 0 rgba(0, 0, 0, 0.6),
+    -0.09em -0.03em 0 #B98A2E;
+}
+
+/* ── the tear ─────────────────────────────────────────────────────
+   The G's crimson and gold channels sit 2 viewBox-units apart at
+   rest — just enough to fringe the silhouette. Hover doubles it to
+   4, so the aberration cracks open and nothing else moves. Units are
+   viewBox units, so it scales with the icon. */
+.chan-a,
+.chan-b {
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.chan-a {
+  transform: translateX(-2px);
+}
+
+.chan-b {
+  transform: translateX(2px);
+}
+
+.group:hover .chan-a,
+.group:focus-visible .chan-a {
+  transform: translateX(-4px);
+}
+
+.group:hover .chan-b,
+.group:focus-visible .chan-b {
+  transform: translateX(4px);
+}
+
+/* score tick — a reaction count pops when it changes, so the number
+   moving is felt, not just read. Conveys state, never decorates. */
+@keyframes count-tick {
+  0% {
+    transform: translateY(-3px) scale(1.18);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+.count-tick {
+  display: inline-block;
+  animation: count-tick 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.press-rule::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 -1px 0;
+  height: 2px;
+  background: linear-gradient(90deg, #C9302C 0%, #B98A2E 26%, rgba(245, 243, 238, 0.14) 58%, transparent 100%);
+  pointer-events: none;
+}
+
+.hairline {
+  height: 1px;
+  border: 0;
+  background: rgba(245, 243, 238, 0.14);
+}
+
+.kicker {
+  font-family: 'Silkscreen', ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ── readable copy ───────────────────────────────────────────────
+   The pixel voice (kicker / chip / btn) is reserved for SYSTEM
+   chrome — scores, dates, counters, badges, tags, short arcade
+   eyebrows. Anything a human actually reads — names, sentences,
+   form labels, helper text, error messages, empty states — gets
+   Inter at a real size with contrast that clears 4.5:1 on pitch
+   black. Mono for the machine, type for the person. */
+.label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: rgba(245, 243, 238, 0.78);
+}
+
+.note {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: rgba(245, 243, 238, 0.6);
+}
+
+.meta {
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: rgba(245, 243, 238, 0.7);
+}
+
+.empty {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: rgba(245, 243, 238, 0.62);
+}
+
+.err {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #E8574F;
+}
+
+/* ── card system ─────────────────────────────────────────────
+   One panel vocabulary for every surface: near-black ground,
+   2px paper border. The ground sits a shade off the canvas on
+   purpose — a card at #000 on a #000 page has no edge at all,
+   so at any gap the tiles fuse into one mass. This is the
+   second neutral layer product UI needs to separate panel from
+   page, not a decorative tint.
+   Genuinely interactive cards get the print-lift — a hard
+   crimson offset and a 2px rise, never a soft blur. Static
+   panels stay flat, because a hover that does nothing is a lie. */
+.card {
+  background: #111111;
+  border: 2px solid rgba(245, 243, 238, 0.28);
+}
+
+.card-link {
+  transition:
+    border-color 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.card-link:hover,
+.card-link:focus-within {
+  border-color: #B98A2E;
+  box-shadow: 5px 5px 0 0 #C9302C;
+  transform: translate(-2px, -2px);
+}
+
+/* The card's hit area. The anchor stays static so its ::after resolves
+   against the card (which is position: relative) and covers the whole tile
+   — that lets the byline keep its own link to the author's profile without
+   nesting one <a> inside another. Anything above it just needs a z-index. */
+.stretch::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+/* The board.
+   Band height is derived from the grid's column width through container units,
+   so a tile keeps its shape at 375px and at 2560px. The previous fixed
+   row-spans were tuned for a 1152px board; once the wall went full bleed they
+   turned every wide tile into a letterbox.
+   Three columns per band is the ratio that works across the kit: a 4-col tile
+   lands near square, a 6-col near 2:1. The band runs at 2.2 to pull as much of
+   the issue onto one screen as the card content will allow.
+   The container has to be the wrapper — query units resolve against the nearest
+   ANCESTOR container, so putting this on the grid itself would silently read
+   the viewport instead of the board. */
+.board {
+  container-type: inline-size;
+  --gap: 0.625rem;
+  --cols: 4;
+  /* A phone card is full width and often text-led, so it needs the extra
+     height for a title and standfirst. Desktop trades that back for density. */
+  --band: 2.6;
+}
+
+.board > .board-grid {
+  /* Floored in px: the ratio alone lets the band collapse on a 360px phone or
+     at the 640px breakpoint edge, where a text card can no longer fit its own
+     byline. 198px is the measured height of kicker, two-line title, two-line
+     standfirst and byline plus padding — below that the card clips itself. */
+  grid-auto-rows: max(
+    198px,
+    calc((100cqw - (var(--cols) - 1) * var(--gap)) / var(--cols) * var(--band))
+  );
+}
+
+@media (min-width: 640px) {
+  .board { --cols: 8; --band: 2.5; }
+}
+
+/* 12 columns waits until xl. At 1024px each column is only ~72px, so a 2.2
+   band collapses to 159px and a text card can no longer fit its own byline. */
+@media (min-width: 1280px) {
+  .board { --cols: 12; --band: 2.2; }
+}
+
+/* portrait slot — framed identity tile, initials set in the pixel face */
+.portrait {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: rgba(245, 243, 238, 0.06);
+  border: 2px solid rgba(245, 243, 238, 0.25);
+  font-family: 'Silkscreen', ui-monospace, monospace;
+  color: rgba(245, 243, 238, 0.85);
+  text-transform: uppercase;
+}
+
+/* the hero portrait on the player card — gold frame, crimson offset */
+.portrait-hero {
+  border-color: #B98A2E;
+  box-shadow: 5px 5px 0 0 #C9302C;
+}
+
+/* role badges — hierarchy reads at a glance */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border: 2px solid rgba(245, 243, 238, 0.3);
+  padding: 0.25rem 0.5rem;
+  font-family: 'Silkscreen', ui-monospace, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: rgba(245, 243, 238, 0.8);
+}
+
+.badge-mod {
+  border-color: #B98A2E;
+  color: #B98A2E;
+}
+
+.badge-admin {
+  border-color: #B98A2E;
+  background: #B98A2E;
+  color: #000000;
+}
+
+/* footer / section bar pinned inside a card */
+.card-foot {
+  border-top: 2px solid rgba(245, 243, 238, 0.16);
+}
+
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border: 2px solid rgba(245, 243, 238, 0.3);
+  padding: 0.25rem 0.5rem;
+  font-family: 'Silkscreen', ui-monospace, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: rgba(245, 243, 238, 0.75);
+  transition: border-color 120ms ease-out, color 120ms ease-out, background-color 120ms ease-out;
+}
+
+/* interactive chip — a real control layered on the base chip:
+   pointer, gold hover, press-down. Static tags keep plain .chip and
+   never react to hover: a hover that does nothing is a lie. */
+.chip-btn {
+  cursor: pointer;
+  transition:
+    border-color 120ms ease-out,
+    color 120ms ease-out,
+    background-color 120ms ease-out,
+    transform 90ms ease-out;
+}
+
+.chip-btn:hover {
+  border-color: #B98A2E;
+  color: #F5F3EE;
+}
+
+.chip-btn:active {
+  transform: translate(1px, 1px);
+}
+
+.chip[data-active='true'] {
+  border-color: #B98A2E;
+  background: #B98A2E;
+  color: #000000;
+}
+
+/* vibe swatch — a person's chosen colour, carried by --vibe. Reads as an
+   outline in their colour until picked, then fills solid. Selected is
+   declared after :hover so it keeps its fill on hover. */
+.vibe-pick {
+  cursor: pointer;
+  border-color: var(--vibe);
+  color: var(--vibe);
+}
+
+.vibe-pick:hover {
+  border-color: #F5F3EE;
+}
+
+.vibe-pick[aria-pressed='true'] {
+  border-color: var(--vibe);
+  background: var(--vibe);
+  color: #000000;
+}
+
+/* ── character select ─────────────────────────────────────────
+   A player card is a magazine spread sat on a Minecraft block:
+   their own display voice, an item-slot portrait, and a lower
+   edge built out of pixels. Colour is the least of it. */
+
+/* item slot — the bevel Minecraft draws around an inventory hole:
+   light on the top-left, dead black on the bottom-right, so the
+   tile reads as recessed into the panel rather than outlined. */
+.slot {
+  background: #161616;
+  border-top: 2px solid rgba(245, 243, 238, 0.55);
+  border-left: 2px solid rgba(245, 243, 238, 0.55);
+  border-right: 2px solid rgba(0, 0, 0, 0.95);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.95);
+}
+
+/* the lower border — a block's bottom face. A light rule, then a
+   course of pixels laid in the player's colour, then a hard edge
+   in that same colour. Bleeds corner to corner, past the padding,
+   so the card stops looking like a floating pane. */
+.mc-card {
+  position: relative;
+  padding-bottom: 1.75rem;
+}
+
+.mc-card::after {
+  content: '';
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  height: 18px;
+  border-top: 2px solid rgba(245, 243, 238, 0.4);
+  border-bottom: 2px solid var(--mc, #F5F3EE);
+  background-color: #111111;
+  background-image:
+    linear-gradient(90deg, var(--mc, #F5F3EE) 0 12px, rgba(0, 0, 0, 0) 12px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0) 0 12px, var(--mc, #F5F3EE) 12px);
+  background-size: 24px 7px, 24px 7px;
+  background-position: 0 0, 0 7px;
+  background-repeat: repeat-x;
+  pointer-events: none;
+}
+
+/* ── display voices ───────────────────────────────────────────
+   Which voice you get is set by the vibe you pick, not by where   you land in the grid — a magazine gives a spread its own type,
+   and yours travels with you from here to Discover. Line-height   lives here (unlayered) so the Tailwind size still scales it. */
+.t-cover {
+  font-family: 'Instrument Serif', ui-serif, serif;
+  font-style: italic;
+  line-height: 0.98;
+  letter-spacing: -0.012em;
+}
+
+.t-editorial {
+  font-family: 'Instrument Serif', ui-serif, serif;
+  font-style: normal;
+  line-height: 1.06;
+}
+
+.t-pulp {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+}
+
+.t-stack {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+  line-height: 0.94;
+}
+
+/* pull-quote bio — the first letter drops in, set large in the
+   player's colour. The oldest magazine trick in the book. */
+.dropcap::first-letter {
+  font-family: 'Instrument Serif', ui-serif, serif;
+  font-style: italic;
+  font-size: 2.6em;
+  line-height: 0.86;
+  float: left;
+  padding-right: 0.07em;
+  color: var(--mc, #B98A2E);
+}
+
+/* ── the reading surface ───────────────────────────────────────
+   Opens like a magazine: a didone headline over a newsprint
+   measure, and a first letter that hangs into the column. */
+.article-body p:first-of-type::first-letter {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 900;
+  font-size: 3.3em;
+  line-height: 0.82;
+  float: left;
+  margin: 0.05em 0.08em 0 0;
+  color: #B98A2E;
+}
+
+/* ── seven faces for the front page ──────────────────────────────
+   A magazine never sets two spreads the same way. Every headline on
+   the board gets its own cut — didone, grotesque, brutal caps,
+   editorial italic, fat curvy, script, pixel — so the wall reads as
+   a rack of clippings, not a template. Sizes ride custom properties:
+   each face sets its own optical scale so a script and a pixel face
+   sit at the same weight as a Helvetica, and the lead still grows as
+   one piece from mobile to desktop. */
+.title {
+  --t-size: 1.5rem;
+  --t-scale: 1;
+  --t-lh: 1.14;
+  font-size: calc(var(--t-size) * var(--t-scale));
+  line-height: var(--t-lh);
+}
+
+/* 1 — didone: high-contrast, heavy, the default editorial voice */
+.f-didone {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+/* 2 — helvetica: the swiss default, quiet on purpose */
+.f-sans {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  --t-scale: 1.06;
+}
+
+/* 3 — brutal caps: shouting, tightly tracked */
+.f-caps {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  --t-scale: 0.94;
+}
+
+/* 4 — editorial italic: the opinion voice */
+.f-italic {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  --t-scale: 1.2;
+}
+
+/* 5 — fat curvy: the tabloid cover */
+.f-fat {
+  font-family: 'Abril Fatface', Georgia, serif;
+  font-weight: 400;
+  --t-scale: 1.1;
+}
+
+/* 6 — script: cursive, needs air and size */
+.f-script {
+  font-family: 'Pacifico', 'Segoe Script', cursive;
+  font-weight: 400;
+  --t-scale: 1.12;
+  --t-lh: 1.34;
+}
+
+/* 7 — pixel: the arcade bulletin board */
+.f-pixel {
+  font-family: 'Silkscreen', ui-monospace, monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  --t-scale: 0.7;
+  --t-lh: 1.42;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 2px solid rgba(245, 243, 238, 0.4);
+  padding: 0.625rem 1rem;
+  font-family: 'Silkscreen', ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: #F5F3EE;
+  background: transparent;
+  box-shadow: 3px 3px 0 0 rgba(245, 243, 238, 0.14);
+  transition: transform 110ms ease-out, box-shadow 110ms ease-out, border-color 110ms ease-out, color 110ms ease-out;
+}
+
+.btn:hover {
+  border-color: #B98A2E;
+  color: #B98A2E;
+}
+
+.btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+}
+
+.btn-gold {
+  border-color: #B98A2E;
+  background: #B98A2E;
+  color: #000000;
+  box-shadow: 3px 3px 0 0 #C9302C;
+}
+
+.btn-gold:hover {
+  border-color: #F5F3EE;
+  background: #F5F3EE;
+  color: #000000;
+  box-shadow: 3px 3px 0 0 #C9302C;
+}
+
+.btn-gold:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+}
+
+.btn-crimson {
+  border-color: #C9302C;
+  color: #C9302C;
+  box-shadow: 3px 3px 0 0 rgba(201, 48, 44, 0.35);
+}
+
+.btn-crimson:hover {
+  background: #C9302C;
+  color: #F5F3EE;
+  border-color: #C9302C;
+}
+
+.field {
+  width: 100%;
+  border: 2px solid rgba(245, 243, 238, 0.4);
+  background: #000000;
+  padding: 0.625rem 0.75rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.875rem;
+  color: #F5F3EE;
+  transition: border-color 120ms ease-out;
+}
+
+.field::placeholder {
+  color: rgba(245, 243, 238, 0.6);
+}
+
+.field:focus {
+  outline: none;
+  border-color: #B98A2E;
+}
+
+/* pixel-perfect focus ring — a hard offset, never a soft glow */
+:focus-visible {
+  outline: 2px solid #B98A2E;
+  outline-offset: 2px;
+}
+
+select.field {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, #B98A2E 50%), linear-gradient(135deg, #B98A2E 50%, transparent 50%);
+  background-position: right 0.9rem center, right 0.6rem center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 2rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wordmark {
+    transition: none;
+  }
+
+  .chan-a,
+  .chan-b {
+    transition: none;
+  }
+
+  .count-tick {
+    animation: none;
+  }
+
+  .card-link {
+    transition: none;
+  }
+
+  .card-link:hover,
+  .card-link:focus-visible {
+    transform: none;
+  }
+}

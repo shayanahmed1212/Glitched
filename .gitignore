@@ -1,0 +1,7 @@
+# Local post store — seeded from lib/seed.ts on first read, safe to delete.
+data/db.json
+data/db.json.tmp
+
+node_modules
+.next
+.env*.local
